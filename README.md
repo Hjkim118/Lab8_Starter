@@ -6,7 +6,7 @@ Hojoon Kim
 
 ## GitHub Pages URL
 
-TODO: Add deployed GitHub Pages URL here.
+https://hjkim118.github.io/Lab8_Starter/
 
 ## Graceful Degradation and Service Workers
 
