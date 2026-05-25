@@ -2,16 +2,16 @@
 
 // CONSTANTS
 const RECIPE_URLS = [
-    'https://adarsh249.github.io/Lab8-Starter/recipes/1_50-thanksgiving-side-dishes.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/2_roasting-turkey-breast-with-stuffing.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/3_moms-cornbread-stuffing.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/4_50-indulgent-thanksgiving-side-dishes-for-any-holiday-gathering.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/5_healthy-thanksgiving-recipe-crockpot-turkey-breast.json',
-    'https://adarsh249.github.io/Lab8-Starter/recipes/6_one-pot-thanksgiving-dinner.json',
+  "https://adarsh249.github.io/Lab8-Starter/recipes/1_50-thanksgiving-side-dishes.json",
+  "https://adarsh249.github.io/Lab8-Starter/recipes/2_roasting-turkey-breast-with-stuffing.json",
+  "https://adarsh249.github.io/Lab8-Starter/recipes/3_moms-cornbread-stuffing.json",
+  "https://adarsh249.github.io/Lab8-Starter/recipes/4_50-indulgent-thanksgiving-side-dishes-for-any-holiday-gathering.json",
+  "https://adarsh249.github.io/Lab8-Starter/recipes/5_healthy-thanksgiving-recipe-crockpot-turkey-breast.json",
+  "https://adarsh249.github.io/Lab8-Starter/recipes/6_one-pot-thanksgiving-dinner.json",
 ];
 
 // Run the init() function when the page has loaded
-window.addEventListener('DOMContentLoaded', init);
+window.addEventListener("DOMContentLoaded", init);
 
 // Starts the program, all function calls trace back here
 async function init() {
@@ -54,6 +54,16 @@ function initializeServiceWorker() {
   // B5. TODO - In the event that the service worker registration fails, console
   //            log that it has failed.
   // STEPS B6 ONWARDS WILL BE IN /sw.js
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", async () => {
+      try {
+        await navigator.serviceWorker.register("./sw.js");
+        console.log("Service worker registered successfully.");
+      } catch (err) {
+        console.error("Service worker registration failed.", err);
+      }
+    });
+  }
 }
 
 /**
@@ -100,6 +110,31 @@ async function getRecipes() {
   //            resolve() method.
   // A10. TODO - Log any errors from catch using console.error
   // A11. TODO - Pass any errors to the Promise's reject() function
+  const storedRecipes = localStorage.getItem("recipes");
+
+  if (storedRecipes) {
+    return JSON.parse(storedRecipes);
+  }
+
+  const recipes = [];
+
+  return new Promise(async (resolve, reject) => {
+    for (let i = 0; i < RECIPE_URLS.length; i++) {
+      try {
+        const response = await fetch(RECIPE_URLS[i]);
+        const recipe = await response.json();
+        recipes.push(recipe);
+
+        if (recipes.length === RECIPE_URLS.length) {
+          saveRecipesToStorage(recipes);
+          resolve(recipes);
+        }
+      } catch (err) {
+        console.error(err);
+        reject(err);
+      }
+    }
+  });
 }
 
 /**
@@ -108,7 +143,7 @@ async function getRecipes() {
  * @param {Array<Object>} recipes An array of recipes
  */
 function saveRecipesToStorage(recipes) {
-  localStorage.setItem('recipes', JSON.stringify(recipes));
+  localStorage.setItem("recipes", JSON.stringify(recipes));
 }
 
 /**
@@ -120,9 +155,9 @@ function saveRecipesToStorage(recipes) {
  */
 function addRecipesToDocument(recipes) {
   if (!recipes) return;
-  let main = document.querySelector('main');
+  let main = document.querySelector("main");
   recipes.forEach((recipe) => {
-    let recipeCard = document.createElement('recipe-card');
+    let recipeCard = document.createElement("recipe-card");
     recipeCard.data = recipe;
     main.append(recipeCard);
   });
